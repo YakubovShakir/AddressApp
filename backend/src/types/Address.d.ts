@@ -1,9 +1,4 @@
-export type AddressObjectType =
-  | "REGION"
-  | "DISTRICT"
-  | "POPULATED_LOCALITY"
-  | "STREET"
-  | "HOUSE"
+export type AddressObjectType = "REGION" | "DISTRICT" | "POPULATED_LOCALITY" | "STREET" | "HOUSE"
 
 export type TypedKeywords = {
   [key in AddressObjectType]: string[]
@@ -12,5 +7,5 @@ export type TypedKeywords = {
 type AddressObject = {
   type: AddressObjectType
   keyword: string
-  value: string
+  value: string | number
 }

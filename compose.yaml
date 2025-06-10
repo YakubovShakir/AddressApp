@@ -1,0 +1,38 @@
+
+services:
+  # frontend:
+  #   build: 
+  #     context: ./frontend
+  #   ports:
+  #     - 127.0.0.1:4040:80
+  #   depends_on:
+  #     - database
+  backend:
+    build: 
+      context: ./backend
+    restart: always
+    # env_file:
+    #   - ./backend/.env
+
+    networks:
+      - AddressAppNetwork
+    depends_on:
+      - database
+  
+  database:
+    image: mongo:6
+    restart: always
+    volumes: 
+     - database:/data/db
+    ports:
+      - 127.0.0.1:27017:27017
+    networks:
+      - AddressAppNetwork
+volumes:
+  database:
+
+networks:
+  AddressAppNetwork:
+    driver: bridge
+    name: AddressAppNetwork
+

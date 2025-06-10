@@ -1,42 +1,32 @@
 import AddressImp from "./classes/Address"
+import connectDatabase from "./config/database"
+import testAddresses from "./testAddresses"
+import * as dotenv from "dotenv"
+dotenv.config()
+import Addresses from "./models/Addresses"
 
-const brokenAddresses = [
-  "ул. Ленина, д. 5, г. Новосибирск",
-  "респ. Татарстан, г Казань, ул. Советская",
-  "обл. Московская, д. 12, ул. Центральная, пгт. Селятино",
-  "пос. Лесной, рн. Пушкинский, д. 25",
-  "г. Екатеринбург, ул. Победы, дом 33, Свердловская обл.",
-  "мо. Ленинский, ул. Школьная, д. 8, г. Видное",
-  "п. Солнечный, обл. Саратовская, ул. Молодежная",
-  "окр. Центральный, г. Воронеж, д. 15, ул. Свободы",
-  "ул. Мира, дом 7, респ. Чувашия, г. Чебоксары",
-  "пгт. Октябрьский, ул. Новая, обл. Рязанская",
-  "г. Самара, д. 3, ул. Рабочая, Самарская область",
-  "поселение Вороновское, ул. Зеленая, д. 22, г. Москва",
-  "край Пермский, ул. Лесная, г. Пермь, д. 9",
-  "рн. Советский, ул. Южная, г. Ростов-на-Дону",
-  "обл. Ленинградская, п. Приозерск, ул. Горная, д. 1",
-  "г. Омск, ул. Садовая, дом 14, Омская обл.",
-  "респ. Карелия, ул. Озерная, п. Ладва, д. 5",
-  "округ Южный, г. Волгоград, ул. Парковая",
-  "ул. Шоссейная, д. 30, пос. Горки, мо. Раменский",
-  "гфз Севастополь, ул. Морская, дом 2",
-  "п. Новый, обл. Тульская, ул. Цветочная, д. 17",
-  "г. Тверь, ул. Комсомольская, Тверская обл.",
-  "респ. Дагестан, ул. Горская, д. 8, г. Махачкала",
-  "ул. Молодежная, пгт. Ильинский, д. 4, Московская область",
-  "г. Ижевск, ул. Северная, дом 25, Удмуртская респ.",
-  "пос. Сосновый, рн. Вологодский, ул. Луговая",
-  "обл. Калининградская, г. Калининград, ул. Балтийская, д. 10",
-  "ул. Центральная, д. 6, п. Речной, край Краснодарский",
-]
+async function main() {
+  const mongoURI = process.env.MONGO_URI
+  if (!mongoURI) throw new Error("Missing MONGO_URI in .env file!")
 
-for (let brokenAddress of brokenAddresses) {
-  console.log("\nСломанный адрес - ", brokenAddress)
-  const address = AddressImp.parse(brokenAddress)
-  console.log("Регион - " + address.region?.value)
-  console.log("Округ - " + address.district?.value)
-  console.log("Населенный пункт - " + address.populatedLocality?.value)
-  console.log("Улица - " + address.street?.value)
-  console.log("Дом - " + address.house?.value)
+  await connectDatabase(mongoURI)
+
+  for (let brokenAddress of testAddresses) {
+    console.log("\nСломанный адрес - ", brokenAddress)
+    const address = AddressImp.parse(brokenAddress)
+
+    const insert = {
+      region: { key: address.region?.keyword, value: address.region?.value },
+      district: { key: address.district?.keyword, value: address.district?.value },
+      populatedLocality: {
+        key: address.populatedLocality?.keyword,
+        value: address.populatedLocality?.value,
+      },
+      street: { key: address.street?.keyword, value: address.street?.value },
+      house: { key: address.house?.keyword, value: address.house?.value },
+    }
+    await Addresses.insertOne(insert)
+  }
 }
+
+main()

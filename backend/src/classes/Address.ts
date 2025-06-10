@@ -92,7 +92,7 @@ class AddressImp implements Address {
           street = parsed
           break
         case "HOUSE":
-          house = parsed
+          house = { ...parsed, value: Number(parsed.value) }
           break
       }
     }
