@@ -1,0 +1,19 @@
+.actionButton {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actionButton:hover {
+  background-color: #3e8e41;
+}
+
+.actionButton:active {
+  transform: scale(0.98);
+}

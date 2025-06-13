@@ -1,0 +1,8 @@
+.sectionBlock {
+  padding: 20px;
+  background-color: rgb(var(--main-text-color-rgb));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

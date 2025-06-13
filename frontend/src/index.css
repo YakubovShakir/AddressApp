@@ -1,0 +1,29 @@
+html,
+body,
+#root {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+:root {
+  --main-bg-color-rgb: 26, 32, 38;
+  --second-bg-color-rgb: 33, 42, 51;
+  --main-text-color-rgb: 249, 250, 251;
+}
+
+body {
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  background-color: rgb(var(--main-bg-color-rgb));
+  color: rgb(var(--main-text-color-rgb));
+}
+
+@font-face {
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  src: url(./assets/fonts/lucidagrande.ttf) format(truetype);
+}
