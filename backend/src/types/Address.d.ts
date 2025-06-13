@@ -7,5 +7,13 @@ export type TypedKeywords = {
 type AddressObject = {
   type: AddressObjectType
   keyword: string
-  value: string | number
+  value: string
+}
+
+type AddressFullObject = {
+  region: AddressObject
+  district: AddressObject
+  populatedLocality: AddressObject
+  street: AddressObject
+  house: AddressObject
 }

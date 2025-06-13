@@ -1,6 +1,6 @@
 import { TypedKeywords, AddressObjectType, AddressObject } from "../types/Address"
 
-const TYPED_KEYWORDS: TypedKeywords = {
+export const TYPED_KEYWORDS: TypedKeywords = {
   REGION: ["республика", "респ", "рес", "край", "область", "обл", "гфз", "фт"],
   DISTRICT: [
     "округ",
@@ -43,40 +43,113 @@ const TYPED_KEYWORDS: TypedKeywords = {
 }
 
 interface Address {
-  region: AddressObject | undefined // наименование субъекта ;
-  district: AddressObject | undefined // наименование муниципального района или округа
-  populatedLocality: AddressObject | undefined // населенный пункт
-  street: AddressObject | undefined // улица
-  house: AddressObject | undefined // дом
+  region: AddressObject // наименование субъекта
+  district: AddressObject // наименование муниципального района или округа
+  populatedLocality: AddressObject // населенный пункт
+  street: AddressObject // улица
+  house: AddressObject // дом
 }
 
 class AddressImp implements Address {
-  public region: AddressObject | undefined
-  public district: AddressObject | undefined
-  public populatedLocality: AddressObject | undefined
-  public street: AddressObject | undefined
-  public house: AddressObject | undefined
+  public region: AddressObject
+  public district: AddressObject
+  public populatedLocality: AddressObject
+  public street: AddressObject
+  public house: AddressObject
 
   constructor(
-    region?: AddressObject,
-    district?: AddressObject,
-    populatedLocality?: AddressObject,
-    street?: AddressObject,
-    house?: AddressObject
+    region: AddressObject,
+    district: AddressObject,
+    populatedLocality: AddressObject,
+    street: AddressObject,
+    house: AddressObject
   ) {
-    this.region = region
-    this.district = district
-    this.populatedLocality = populatedLocality
-    this.street = street
-    this.house = house
+    this.region = { ...region, type: "REGION" }
+    this.district = { ...district, type: "DISTRICT" }
+    this.populatedLocality = {
+      ...populatedLocality,
+      type: "POPULATED_LOCALITY",
+    }
+    this.street = { ...street, type: "STREET" }
+    this.house = { ...house, type: "HOUSE" }
+  }
+  public checkPartType(type: AddressObjectType, value: string) {
+    const keywords = TYPED_KEYWORDS[type]
+    return keywords.includes(AddressImp.filterPart(value).toLowerCase())
   }
 
-  public static parse(rawAddress: string): AddressImp {
+  public static isAddressObject(object: any): boolean {
+    const type = object?.type
+    const keyword = object?.keyword
+    const value = object?.value
+
+    if (!type || !keyword || !value) return false
+
+    const types: AddressObjectType[] = [
+      "REGION",
+      "DISTRICT",
+      "POPULATED_LOCALITY",
+      "STREET",
+      "HOUSE",
+    ]
+    if (!types.includes(type)) return false
+
+    const keywords = TYPED_KEYWORDS[type as AddressObjectType]
+    if (!keywords.includes(keyword)) return false
+
+    return true
+  }
+
+  public setAddressType(type: AddressObjectType, value: string) {
+    let result: AddressObject
+
+    const splited = value.split(" ")
+    const keywords = TYPED_KEYWORDS[type]
+
+    let keyword = splited.find((str) => keywords.includes(AddressImp.filterPart(str).toLowerCase()))
+    if (!keyword) {
+      result = {
+        type,
+        keyword: "",
+        value: splited.join(" ").trim(),
+      }
+    } else {
+      splited.splice(splited.indexOf(keyword), 1)
+      value = splited.join(" ").trim()
+
+      result = {
+        type,
+        keyword,
+        value,
+      }
+    }
+
+    switch (type) {
+      case "REGION":
+        this.region = result
+        break
+      case "DISTRICT":
+        this.district = result
+        break
+      case "POPULATED_LOCALITY":
+        this.populatedLocality = result
+        break
+      case "STREET":
+        this.street = result
+        break
+      case "HOUSE":
+        this.house = result
+        break
+    }
+  }
+
+  public static parse(rawAddress: string): AddressImp | undefined {
     const filtered: string[] = this.splitAndFilterAddress(rawAddress)
     let region, district, populatedLocality, street, house
+    let parsed
 
     for (let part of filtered) {
-      const parsed = this.parsePart(part)
+      parsed = this.parsePart(part)
 
       switch (parsed?.type) {
         case "REGION":
@@ -92,11 +165,12 @@ class AddressImp implements Address {
           street = parsed
           break
         case "HOUSE":
-          house = { ...parsed, value: Number(parsed.value) }
+          house = { ...parsed, value: String(parsed.value) }
           break
       }
     }
-    return new AddressImp(region, district, populatedLocality, street, house)
+    if (region && district && populatedLocality && street && house)
+      return new AddressImp(region, district, populatedLocality, street, house)
   }
 
   private static splitAndFilterAddress(rawAddress: string): string[] {
@@ -118,7 +192,7 @@ class AddressImp implements Address {
     for (const type of Object.keys(TYPED_KEYWORDS) as AddressObjectType[]) {
       keywords = TYPED_KEYWORDS[type]
 
-      let keyword = splited.find((str) => keywords.includes(str))
+      let keyword = splited.find((str) => keywords.includes(str.toLowerCase()))
       if (!keyword) continue
 
       splited.splice(splited.indexOf(keyword), 1)

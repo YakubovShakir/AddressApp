@@ -1,14 +1,14 @@
-import mongoose from "mongoose"
-import { AddressObject } from "../types/Address"
+import mongoose, { Schema, Document } from "mongoose"
+import { RegionObject, RegionSchema } from "./schemas/RegionSchema"
 
-const AddressModel = new mongoose.Schema({
-  region: { key: { type: String }, value: { type: String } },
-  district: { key: { type: String }, value: { type: String } },
-  populatedLocality: { key: { type: String }, value: { type: String } },
-  street: { key: { type: String }, value: { type: String } },
-  house: { key: { type: String }, value: { type: Number } },
+export interface AddressDocument extends Document {
+  region: RegionObject
+}
+
+const AddressModel = new Schema<AddressDocument>({
+  region: { type: RegionSchema, required: true },
 })
 
-const Addresses = mongoose.model("adresses", AddressModel)
+const Addresses = mongoose.model<AddressDocument>("Addresses", AddressModel)
 
 export default Addresses
