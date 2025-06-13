@@ -95,7 +95,7 @@ class AddressImp implements Address {
     if (!types.includes(type)) return false
 
     const keywords = TYPED_KEYWORDS[type as AddressObjectType]
-    if (!keywords.includes(keyword)) return false
+    if (!keywords.includes(keyword.toLowerCase())) return false
 
     return true
   }
