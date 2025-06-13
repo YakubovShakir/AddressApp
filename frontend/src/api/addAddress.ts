@@ -8,9 +8,8 @@ const addAddress = async (
   street: AddressObject,
   house: AddressObject
 ) => {
-  console.log(region, district, populatedLocality, street, house)
   const response = await axios.post(
-    "http://localhost:3000/address/create",
+    "/api/address/create",
     {
       region,
       district,
@@ -20,12 +19,10 @@ const addAddress = async (
     },
     {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
       },
     }
   )
-  console.log(response)
 }
 
 export default addAddress

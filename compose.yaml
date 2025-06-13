@@ -1,19 +1,22 @@
 
 services:
-  # frontend:
-  #   build: 
-  #     context: ./frontend
-  #   ports:
-  #     - 127.0.0.1:4040:80
-  #   depends_on:
-  #     - database
+  frontend:
+    build: 
+      context: ./frontend
+    ports:
+      - 127.0.0.1:80:80
+    networks:
+      - AddressAppNetwork
+    depends_on:
+      - backend
   backend:
     build: 
       context: ./backend
     restart: always
-    # env_file:
-    #   - ./backend/.env
-
+    environment:
+      - MONGO_URI=mongodb://database:27017/addressApp
+    ports:
+      - 127.0.0.1:3000:3000
     networks:
       - AddressAppNetwork
     depends_on:
@@ -24,15 +27,17 @@ services:
     restart: always
     volumes: 
      - database:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=addressApp
     ports:
       - 127.0.0.1:27017:27017
     networks:
       - AddressAppNetwork
+
 volumes:
   database:
 
 networks:
   AddressAppNetwork:
     driver: bridge
-    name: AddressAppNetwork
 

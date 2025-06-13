@@ -25,9 +25,6 @@ const InfoTable = ({ rawAddresses }) => {
       return newAddresses
     })
   }
-  useEffect(() => {
-    console.log("Updated addresses -", addresses)
-  }, [addresses])
 
   const handleDownload = () => {
     const rows = []
@@ -51,12 +48,17 @@ const InfoTable = ({ rawAddresses }) => {
     let region, district, populatedLocality, street, house
     for (let address of addresses) {
       region = address?.region
-      district = address?.district 
+      district = address?.district
       populatedLocality = address?.populatedLocality
       street = address?.street
-      house = address?.house 
-      
-      if (region?.value && district?.value && populatedLocality?.value && street?.value && house?.value) {
+      house = address?.house
+      if (
+        region?.value &&
+        district?.value &&
+        populatedLocality?.value &&
+        street?.value &&
+        house?.value
+      ) {
         await addAddress(region, district, populatedLocality, street, house)
       }
     }
@@ -64,8 +66,8 @@ const InfoTable = ({ rawAddresses }) => {
   return (
     <div className={classes.infoTable}>
       <div className={classes.actionsContainer}>
-        <ActionButton onClick={handleSave}>Сохранить в базе</ActionButton>
-        <ActionButton onClick={handleDownload}>Выгрузка в CSV</ActionButton>
+        <ActionButton onClick={handleSave}>Загрузить в базу</ActionButton>
+        <ActionButton onClick={handleDownload}>Cкачать CSV</ActionButton>
       </div>
       <div className={classes.tableContainer}>
         <Row headerTitles={titles} isHeader />

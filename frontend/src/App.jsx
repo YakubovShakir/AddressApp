@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 
 import classes from "./App.module.css"
 
-import Title from "./Components/Title/Title"
+import Title from "./components/Title/Title"
 import FilePicker from "./components/FilePicker/FilePicker"
 import SectionBlock from "./components/SectionBlock/SectionBlock"
 import InfoTable from "./components/InfoTable/InfoTable"
