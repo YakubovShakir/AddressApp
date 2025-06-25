@@ -1,19 +1,12 @@
-export type AddressObjectType = "REGION" | "DISTRICT" | "POPULATED_LOCALITY" | "STREET" | "HOUSE"
-
-export type TypedKeywords = {
-  [key in AddressObjectType]: string[]
-}
-
-type AddressObject = {
-  type: AddressObjectType
+export type AddressPart = {
   keyword: string
-  value: string
+  value: string | number
 }
 
-type AddressFullObject = {
-  region: AddressObject
-  district: AddressObject
-  populatedLocality: AddressObject
-  street: AddressObject
-  house: AddressObject
+export type AddressObject = {
+  region: AddressPart | undefined
+  district: AddressPart | undefined
+  locality: AddressPart | undefined
+  street: AddressPart | undefined
+  house: AddressPart | undefined
 }

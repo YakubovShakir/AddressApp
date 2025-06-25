@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import classes from "./InfoTable.module.css"
 import Row from "./Row/Row"
 import AddressImp from "../../classes/Address"
-import ActionButton from "../ActionButton/ActionButton"
+import ActionButton from "../ActionButton/ActionButton" 
 import formatAddressPart from "../../utils/formatAddressPart"
 import downloadCSV from "../../utils/downloadCSV"
 import addAddress from "../../api/addAddress"
@@ -12,7 +12,7 @@ const InfoTable = ({ rawAddresses }) => {
     rawAddresses.map((addr) => AddressImp.parse(addr))
   )
 
-  const titles = ["Регион", "Район / Округ", "Населенный пункт", "Улица", "Дом"]
+  const titles = ["Регион", "Город / Округ", "Населенный пункт", "Улица", "Дом"]
 
   useEffect(() => {
     setAddresses(rawAddresses.map((addr) => AddressImp.parse(addr)))
@@ -35,7 +35,7 @@ const InfoTable = ({ rawAddresses }) => {
       const row = [
         formatAddressPart(address.region),
         formatAddressPart(address.district),
-        formatAddressPart(address.populatedLocality),
+        formatAddressPart(address.locality),
         formatAddressPart(address.street),
         formatAddressPart(address.house),
       ]
@@ -45,22 +45,16 @@ const InfoTable = ({ rawAddresses }) => {
     downloadCSV(rows.join("\n"), "Addresses")
   }
   const handleSave = async () => {
-    let region, district, populatedLocality, street, house
+    let region, district, locality, street, house
     for (let address of addresses) {
       region = address?.region
       district = address?.district
-      populatedLocality = address?.populatedLocality
+      locality = address?.locality
       street = address?.street
       house = address?.house
-      if (
-        region?.value &&
-        district?.value &&
-        populatedLocality?.value &&
-        street?.value &&
-        house?.value
-      ) {
-        await addAddress(region, district, populatedLocality, street, house)
-      }
+    
+      await addAddress(region, district, locality, street, house)
+      
     }
   }
   return (

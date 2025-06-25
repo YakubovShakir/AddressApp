@@ -1,5 +1,5 @@
 import getAddress from "../../../api/getAddress"
-import AddressImp from "../../../classes/Address"
+import AddressImp, { TYPED_KEYWORDS } from "../../../classes/Address"
 import formatAddressPart from "../../../utils/formatAddressPart"
 import classes from "./Row.module.css"
 import { useEffect, useState } from "react"
@@ -8,128 +8,123 @@ const Row = ({ address, updateAddress, headerTitles, isHeader }) => {
   const [displayValues, setDisplayValues] = useState({
     region: "",
     district: "",
-    populated_locality: "",
+    locality: "",
     street: "",
     house: "",
   })
-  const [regionData, setRegionData] = useState(null)
-  const [districtData, setDistrictData] = useState(null)
-  const [streetData, setStreetData] = useState(null)
-  const [localityData, setLocalityData] = useState(null)
-  const [visibleDataType, setVisibleDataType] = useState(false)
+
+  const [visiblePossibleOptions, setVisiblePossibleOptions] = useState(null)
+  const [possibleOptions, setPossibleOptions] = useState(null)
+
+  const [errors, setErrors] = useState({
+    region: false,
+    district: false,
+    locality: false,
+    street: false,
+    house: false,
+  })
+  const [errorMessages, setErrorMessages] = useState({
+    region: "",
+    district: "",
+    locality: "",
+    street: "",
+    house: "",
+  }) 
 
   useEffect(() => {
     if (address) {
       setDisplayValues({
         region: formatAddressPart(address.region),
         district: formatAddressPart(address.district),
-        populated_locality: formatAddressPart(address.populatedLocality),
+        locality: formatAddressPart(address.locality),
         street: formatAddressPart(address.street),
         house: formatAddressPart(address.house),
       })
-      if (address?.region?.value) {
-        getAddress(address?.region?.value).then((data) => {
-          setRegionData(data)
-        })
-      }
     }
   }, [address])
 
   useEffect(() => {
-    if (regionData) {
-      const district = regionData?.districts.find(
-        ({ value }) => value === address.district?.value
-      )
-      const locality = district?.populatedLocalities?.find(
-        ({ value }) => value === address?.populatedLocality?.value
-      )
-      const street = locality?.streets.find(
-        ({ value }) => value === address?.street?.value
-      )
-
-      setDistrictData(district)
-      setLocalityData(locality)
-      setStreetData(street)
+    if (visiblePossibleOptions) {
+      getAddress(
+        {
+          region: address?.region,
+          district: address?.district,
+          locality: address?.locality,
+          street: address?.street,
+          house: address?.house,
+        },
+        visiblePossibleOptions
+      ).then((options) => {
+        setPossibleOptions(options)
+      })
     }
-  }, [regionData])
-
-  const getDistrictsFromRegion = () => {
-    if (regionData) {
-      return regionData?.districts?.map((district) =>
-        formatAddressPart(district)
-      )
-    }
-  }
-
-  const getLocalitiesFromDistrict = () => {
-    return districtData?.populatedLocalities?.map((locality) =>
-      formatAddressPart(locality)
-    )
-  }
-
-  const getStreetsFromLocality = () => {
-    return localityData?.streets?.map((street) => formatAddressPart(street))
-  }
-
-  const getHousesFromStreet = () => {
-    return streetData?.houses?.map((house) => formatAddressPart(house))
-  }
-  const possibleOptions = {
-    district: getDistrictsFromRegion(),
-    populated_locality: getLocalitiesFromDistrict(),
-    street: getStreetsFromLocality(),
-    house: getHousesFromStreet(),
-  }
+  }, [visiblePossibleOptions])
 
   const handleFocus = (type) => {
-    setVisibleDataType(type)
+    setVisiblePossibleOptions(type)
   }
   const handleChange = (type, value) => {
-    setDisplayValues((prev) => ({
+  if (errors[type]) {
+    setErrors(prev => ({ ...prev, [type]: false }));
+    setErrorMessages(prev => ({ ...prev, [type]: "" }));
+  }
+  
+  setDisplayValues((prev) => ({
+    ...prev,
+    [type]: value,
+  }));
+};
+
+   const handleBlur = async (type, value) => {
+  setTimeout(() => setVisiblePossibleOptions(null), 200);
+  
+  if (!address) return;
+
+  setErrors(prev => ({ ...prev, [type]: false }));
+  setErrorMessages(prev => ({ ...prev, [type]: "" }));
+
+  if (!value.trim()) {
+    return;
+  }
+
+  const addressType = type.toUpperCase();
+  const { result, isValid } = address.setAddressType(addressType, value);
+
+  if (!isValid) {
+    setErrors(prev => ({ ...prev, [type]: true }));
+    setErrorMessages(prev => ({
       ...prev,
-      [type]: value,
-    }))
+      [type]: `Некорректный формат.`
+    }));
+    return;
   }
 
-  const handleBlur = async (type, value) => {
-    setTimeout(() => setVisibleDataType(null), 20_000)
-    if (!address) return
+  setDisplayValues({
+    region: formatAddressPart(address.region),
+    district: formatAddressPart(address.district),
+    locality: formatAddressPart(address.locality),
+    street: formatAddressPart(address.street),
+    house: formatAddressPart(address.house),
+  });
 
-    const addressType = type.toUpperCase()
-    address.setAddressType(addressType, value)
+  const updatedAddress = new AddressImp(
+    address.region,
+    address.district,
+    address.locality,
+    address.street,
+    address.house
+  );
+  updateAddress(updatedAddress);
+};
 
-    if (
-      type === "region" &&
-      address?.region?.keyword &&
-      address?.region?.value
-    ) {
-      const region = await getAddress(address?.region?.value)
-      if (region) {
-        setRegionData(region)
-      }
-    }
-    setDisplayValues({
-      region: formatAddressPart(address.region),
-      district: formatAddressPart(address.district),
-      populated_locality: formatAddressPart(address.populatedLocality),
-      street: formatAddressPart(address.street),
-      house: formatAddressPart(address.house),
-    })
-
-    const updatedAddress = new AddressImp(
-      address.region,
-      address.district,
-      address.populatedLocality,
-      address.street,
-      address.house
-    )
-    updateAddress(updatedAddress)
+  const getInputClassName = (type) => {
+    return `${classes.rowInput} ${errors[type] ? classes.errorInput : ''}`
   }
 
-  const displayAddress = [
+   const displayAddress = [
     { type: "region" },
     { type: "district" },
-    { type: "populated_locality" },
+    { type: "locality" },
     { type: "street" },
     { type: "house" },
   ].map(({ type }, index) => (
@@ -141,28 +136,31 @@ const Row = ({ address, updateAddress, headerTitles, isHeader }) => {
           onChange={(e) => handleChange(type, e.target.value)}
           onBlur={(e) => handleBlur(type, e.target.value)}
           onFocus={() => handleFocus(type)}
-          className={classes.rowInput}
+          className={getInputClassName(type)}
           placeholder={type.replace("_", " ")}
         />
-        {type !== "region" &&
-          visibleDataType === type &&
-          possibleOptions[type] && (
-            <div className={classes.dropdownMenu}>
-              {possibleOptions[type]?.map((option, i) => (
-                <div
-                  key={i}
-                  className={classes.dropdownItem}
-                  onClick={() => {
-                    handleChange(type, option)
-                    setVisibleDataType(null)
-                  }}
-                  onMouseDown={(e) => e.preventDefault()}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          )}
+        {errors[type] && displayValues[type] && (
+          <div className={classes.errorTooltip}>
+            {errorMessages[type]}
+          </div>
+        )}
+        {visiblePossibleOptions === type && possibleOptions && !displayValues[type] && (
+          <div className={classes.dropdownMenu}>
+            {possibleOptions?.map((option, i) => (
+              <div
+                key={i}
+                className={classes.dropdownItem}
+                onClick={() => {
+                  handleChange(type, option?.keyword + " " + option?.value)
+                  setVisiblePossibleOptions(null)
+                }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                {formatAddressPart({value: option?.value, keyword: option?.keyword, type})}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   ))

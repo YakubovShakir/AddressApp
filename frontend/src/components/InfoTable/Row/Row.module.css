@@ -17,6 +17,9 @@
   min-width: 0;
   padding: 4px;
   border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .cellContainer:last-child {
@@ -25,7 +28,7 @@
 
 .headerCell {
   flex: 1;
-  padding: 12px 8px;
+  padding: 8px;
   color: #ffffff;
   font-weight: 500;
   text-align: center;
@@ -37,14 +40,17 @@
 .inputWrapper {
   position: relative;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .rowInput {
   width: 100%;
-  height: 36px;
-  padding: 8px 12px;
+  height: 32px;
+  padding: 4px 8px;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 14px;
   background-color: #ffffff;
   box-sizing: border-box;
@@ -53,7 +59,7 @@
 .rowInput:focus {
   outline: none;
   border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
 }
 
 .dropdownMenu {
@@ -61,38 +67,58 @@
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 200px;
+  max-height: 160px;
   overflow-y: auto;
-  background-color: white;
+  background-color: rgb(240, 240, 240);
+  color: rgb(0, 0, 0);
   border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 100;
-  margin-top: 4px;
-  color: rgb(109, 109, 119);
+  margin-top: 2px;
 }
 
 .dropdownItem {
-  padding: 8px 12px;
+  padding: 6px 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   transition: background-color 0.2s;
 }
 
 .dropdownItem:hover {
-  background-color: #f3f4f6;
+  background-color: #00359f;
+  color: white;
+}
+
+.errorInput {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2) !important;
+}
+
+.errorTooltip {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  color: #ef4444;
+  font-size: 11px;
+  white-space: nowrap;
+  background-color: white;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid #ef4444;
+  z-index: 10;
 }
 
 @media (max-width: 768px) {
   .headerCell {
-    padding: 8px 4px;
-    font-size: 13px;
+    padding: 6px 4px;
+    font-size: 12px;
   }
 
   .rowInput {
-    height: 32px;
-    padding: 6px 8px;
-    font-size: 13px;
+    height: 28px;
+    padding: 3px 6px;
+    font-size: 12px;
   }
 }
 

@@ -4,7 +4,7 @@ import {
   AddressObject,
 } from "../types/Address"
 
-const TYPED_KEYWORDS: TypedKeywords = {
+export const TYPED_KEYWORDS: TypedKeywords = {
   REGION: ["республика", "респ", "рес", "край", "область", "обл", "гфз", "фт"],
   DISTRICT: [
     "округ",
@@ -16,11 +16,14 @@ const TYPED_KEYWORDS: TypedKeywords = {
     "сельское",
     "внутригородской",
     "внутригородская",
-  ],
-  POPULATED_LOCALITY: [
     "город",
     "г",
     "гор",
+    "городского",
+    "пгт",
+    "гп",
+  ],
+  LOCALITY: [
     "населенный",
     "нас",
     "пункт",
@@ -33,11 +36,8 @@ const TYPED_KEYWORDS: TypedKeywords = {
     "дп",
     "сп",
     "сельский",
-    "городского",
-    "пгт",
     "рп",
     "кп",
-    "гп",
     "п",
     "район",
     "рн",
@@ -49,7 +49,7 @@ const TYPED_KEYWORDS: TypedKeywords = {
 interface Address {
   region: AddressObject // наименование субъекта
   district: AddressObject // наименование муниципального района или округа
-  populatedLocality: AddressObject // населенный пункт
+  locality: AddressObject // населенный пункт
   street: AddressObject // улица
   house: AddressObject // дом
 }
@@ -57,35 +57,44 @@ interface Address {
 class AddressImp implements Address {
   public region: AddressObject
   public district: AddressObject
-  public populatedLocality: AddressObject
+  public locality: AddressObject
   public street: AddressObject
   public house: AddressObject
 
   constructor(
     region: AddressObject,
     district: AddressObject,
-    populatedLocality: AddressObject,
+    locality: AddressObject,
     street: AddressObject,
     house: AddressObject
   ) {
     this.region = { ...region, type: "REGION" }
     this.district = { ...district, type: "DISTRICT" }
-    this.populatedLocality = {
-      ...populatedLocality,
-      type: "POPULATED_LOCALITY",
+    this.locality = {
+      ...locality,
+      type: "LOCALITY",
     }
     this.street = { ...street, type: "STREET" }
     this.house = { ...house, type: "HOUSE" }
   }
-  public setAddressType(type: AddressObjectType, value: string) {
+  public setAddressType(
+    type: AddressObjectType,
+    value: string
+  ): { result: AddressObject; isValid: boolean } {
     let result: AddressObject
+    let isValid = true
 
     const splited = value.split(" ")
     const keywords = TYPED_KEYWORDS[type]
 
     let keyword = splited.find((str) =>
-      keywords.includes(AddressImp.filterPart(str).toLowerCase())
+      keywords?.includes(AddressImp.filterPart(str).toLowerCase())
     )
+
+    if (!keyword && keywords?.length) {
+      isValid = false
+    }
+
     if (!keyword) {
       result = {
         type,
@@ -110,8 +119,8 @@ class AddressImp implements Address {
       case "DISTRICT":
         this.district = result
         break
-      case "POPULATED_LOCALITY":
-        this.populatedLocality = result
+      case "LOCALITY":
+        this.locality = result
         break
       case "STREET":
         this.street = result
@@ -120,11 +129,12 @@ class AddressImp implements Address {
         this.house = result
         break
     }
-  }
 
+    return { result, isValid }
+  }
   public static parse(rawAddress: string): AddressImp {
     const filtered: string[] = this.splitAndFilterAddress(rawAddress)
-    let region, district, populatedLocality, street, house
+    let region, district, locality, street, house
 
     for (let part of filtered) {
       const parsed = this.parsePart(part)
@@ -136,8 +146,8 @@ class AddressImp implements Address {
         case "DISTRICT":
           district = parsed
           break
-        case "POPULATED_LOCALITY":
-          populatedLocality = parsed
+        case "LOCALITY":
+          locality = parsed
           break
         case "STREET":
           street = parsed
@@ -147,7 +157,7 @@ class AddressImp implements Address {
           break
       }
     }
-    return new AddressImp(region, district, populatedLocality, street, house)
+    return new AddressImp(region, district, locality, street, house)
   }
 
   private static splitAndFilterAddress(rawAddress: string): string[] {

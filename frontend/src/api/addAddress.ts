@@ -1,19 +1,19 @@
 import axios from "axios"
-import { AddressObject } from "../types/Address"
+import { AddressPart } from "../types/Address"
 
 const addAddress = async (
-  region: AddressObject,
-  district: AddressObject,
-  populatedLocality: AddressObject,
-  street: AddressObject,
-  house: AddressObject
+  region: AddressPart | undefined,
+  district: AddressPart | undefined,
+  locality: AddressPart | undefined,
+  street: AddressPart | undefined,
+  house: AddressPart | undefined
 ) => {
   const response = await axios.post(
-    "/api/address/create",
+    "http://localhost:3000/api/address/create",
     {
       region,
       district,
-      populatedLocality,
+      locality,
       street,
       house,
     },
