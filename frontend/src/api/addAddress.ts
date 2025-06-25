@@ -9,7 +9,7 @@ const addAddress = async (
   house: AddressPart | undefined
 ) => {
   const response = await axios.post(
-    "http://localhost:3000/api/address/create",
+    "/api/address/create",
     {
       region,
       district,

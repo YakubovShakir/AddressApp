@@ -5,7 +5,7 @@ const getAddressPart = async (
   address: FullAddressObject,
   type: "region" | "district" | "locality" | "street" | "house"
 ) => {
-  const response = await axios.get("http://localhost:3000/api/addressPart", {
+  const response = await axios.get("/api/addressPart", {
     params: {
       address: JSON.stringify({
         region: {
